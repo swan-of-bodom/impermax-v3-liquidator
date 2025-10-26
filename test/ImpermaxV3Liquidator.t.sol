@@ -2,21 +2,21 @@
 pragma solidity ^0.8.9;
 
 import {Test, console} from "forge-std/Test.sol";
-import {AeroCLLiquidator} from "../src/extensions/AeroCLLiquidator.sol";
+import {UniV3Liquidator} from "../src/extensions/UniV3Liquidator.sol";
 
 contract ImpermaxV3LiquidatorTest is Test {
-    AeroCLLiquidator public liquidator;
+    UniV3Liquidator public liquidator;
 
     // Impermax Router on this chain
-    address constant ROUTER = 0xd894B2C116Ba9473109e3d2675EA25964E1f8797;
+    address constant ROUTER = 0x0fD27DC61e2Dc85EF63298E39cB2879432F2DaF6;
 
     // Position to liquidate
-    address constant NFTLP = 0x059C888D457A10de6921A0853E1a62EC58B447ad;
-    uint256 constant TOKEN_ID = 29207926;
+    address constant NFTLP = 0x62Eb5c0f829e7fAE4da4B1bDE3b1540F581Fc187;
+    uint256 constant TOKEN_ID = 39;
 
     function setUp() public {
-        vm.createSelectFork("base", 37010128);
-        liquidator = new AeroCLLiquidator(ROUTER);
+        vm.createSelectFork("hyperevm");
+        liquidator = new UniV3Liquidator(ROUTER);
     }
 
     function test_flashLiquidate() public {

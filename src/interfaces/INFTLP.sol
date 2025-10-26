@@ -33,4 +33,18 @@ interface INFTLP {
     function split(uint256 tokenId, uint256 percentage) external returns (uint256 newTokenId);
 
     function redeem(address to, uint256 tokenId) external;
+
+    function positions(uint256 tokenId)
+        external
+        view
+        returns (
+            uint24 fee,
+            int24 tickLower,
+            int24 tickUpper,
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint256 unclaimedFees0,
+            uint256 unclaimedFees1
+        );
 }

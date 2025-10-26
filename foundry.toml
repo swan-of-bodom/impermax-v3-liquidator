@@ -12,5 +12,6 @@ fantom = "https://rpc.ftm.tools"
 base = "https://base-mainnet.g.alchemy.com/v2/iRQtbXKq9E4afT5-441HzZAF0mDCWcHD"
 optimism = "https://optimism.llamarpc.com"
 scroll = "https://rpc.scroll.io"
+hyperevm = "https://rpc.hyperliquid.xyz/evm"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
