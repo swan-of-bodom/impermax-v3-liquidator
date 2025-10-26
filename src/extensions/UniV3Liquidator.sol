@@ -9,22 +9,25 @@ import {ImpermaxV3Liquidator} from "../ImpermaxV3Liquidator.sol";
 
 // Extensions
 import {IUniV3SwapRouter} from "../interfaces/extensions/uniV3/IUniV3SwapRouter.sol";
-import {INonfungiblePositionManager} from "../interfaces/extensions/aeroCL/INFPManager.sol";
 
 contract UniV3Liquidator is ImpermaxV3Liquidator {
     using SafeTransferLib for address;
 
     /// @notice The address of UniV3's Swap Router
-    IUniV3SwapRouter public constant SWAP_ROUTER = IUniV3SwapRouter(0x6D99e7f6747AF2cDbB5164b6DD50e40D4fDe1e77);
+    IUniV3SwapRouter public immutable swapRouter;
 
     /// @param _router The Impermax Router, can also use factory, just used for getLendingPool
-    constructor(address _router) ImpermaxV3Liquidator(_router) {}
+    constructor(address _router, address _swapRouter) ImpermaxV3Liquidator(_router) {
+        swapRouter = IUniV3SwapRouter(_swapRouter);
+    }
 
     /// @param data The data passed to the borrowable's `liquidate` function
     /// @param tokenId The TokenID we're liquidating
     function _redeemPositionAndRepay(LiquidateData memory data, uint256 tokenId) internal override {
-        // Redeem NFTLP and receive Aero NFT
+        // Get pool to swap before redeeming
         (uint24 fee, , , , , , , ) = INFTLP(data.lendingPool.nftlp).positions(tokenId);
+
+        // Redeem NFTLP and receive token0/token1
         INFTLP(data.lendingPool.nftlp).redeem(address(this), tokenId);
 
         // Swap to the token we need to repay
@@ -44,9 +47,9 @@ contract UniV3Liquidator is ImpermaxV3Liquidator {
     }
 
     function _swapTokensUniV3(address tokenIn, address tokenOut, uint256 amountIn, uint24 fee) private {
-        _approveToken(tokenIn, address(SWAP_ROUTER), amountIn);
+        _approveToken(tokenIn, address(swapRouter), amountIn);
 
-        SWAP_ROUTER.exactInputSingle(
+        swapRouter.exactInputSingle(
             IUniV3SwapRouter.ExactInputSingleParams({
                 tokenIn: tokenIn,
                 tokenOut: tokenOut,

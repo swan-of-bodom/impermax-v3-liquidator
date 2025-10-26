@@ -15,13 +15,16 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
     using SafeTransferLib for address;
 
     /// @notice The address of Aerodrome's Swap Router
-    ISwapRouter public constant SWAP_ROUTER = ISwapRouter(0xBE6D8f0d05cC4be24d5167a3eF062215bE6D18a5);
+    ISwapRouter public immutable swapRouter;
 
     /// @notice The address of Aerodrome's NonFungiblePositionManager
-    INonfungiblePositionManager public constant POSITION_MANAGER = INonfungiblePositionManager(0x827922686190790b37229fd06084350E74485b72);
+    INonfungiblePositionManager public immutable positionManager;
 
     /// @param _router The Impermax Router, can also use factory, just used for getLendingPool
-    constructor(address _router) ImpermaxV3Liquidator(_router) {}
+    constructor(address _router, address _swapRouter, address _positionManager) ImpermaxV3Liquidator(_router) {
+      swapRouter = ISwapRouter(_swapRouter);
+      positionManager = INonfungiblePositionManager(_positionManager);
+    }
 
     /// @param data The data passed to the borrowable's `liquidate` function
     /// @param tokenId The TokenID we're liquidating
@@ -30,9 +33,9 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
         INFTLP(data.lendingPool.nftlp).redeem(address(this), tokenId);
 
         // Redeem Aero NFT
-        (,,,, int24 tickSpacing,,, uint128 liquidity,,,,) = POSITION_MANAGER.positions(tokenId);
+        (,,,, int24 tickSpacing,,, uint128 liquidity,,,,) = positionManager.positions(tokenId);
 
-        POSITION_MANAGER.decreaseLiquidity(
+        positionManager.decreaseLiquidity(
             INonfungiblePositionManager.DecreaseLiquidityParams({
                 tokenId: tokenId,
                 liquidity: liquidity,
@@ -42,7 +45,7 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
             })
         );
 
-        POSITION_MANAGER.collect(
+        positionManager.collect(
             INonfungiblePositionManager.CollectParams({
                 tokenId: tokenId,
                 recipient: address(this),
@@ -51,7 +54,7 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
             })
         );
 
-        POSITION_MANAGER.burn(tokenId);
+        positionManager.burn(tokenId);
 
         // Swap to the token we need to repay
         address borrowable = data.isX ? data.lendingPool.borrowables[0] : data.lendingPool.borrowables[1];
@@ -70,9 +73,9 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
     }
 
     function _swapTokensAero(address tokenIn, address tokenOut, int24 tickSpacing, uint256 amountIn) private {
-        _approveToken(tokenIn, address(SWAP_ROUTER), amountIn);
+        _approveToken(tokenIn, address(swapRouter), amountIn);
 
-        SWAP_ROUTER.exactInputSingle(
+        swapRouter.exactInputSingle(
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: tokenIn,
                 tokenOut: tokenOut,
