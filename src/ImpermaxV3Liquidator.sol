@@ -130,6 +130,12 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
     //   Internal
     // -----------------------------
 
+    // Used by extensions to allow swap routers to move our tokens
+    function _approveToken(address token, address to, uint256 amount) internal {
+        if (IERC20(token).allowance(address(this), to) >= amount) return;
+        SafeTransferLib.safeApprove(token, to, type(uint256).max);
+    }
+
     // Used by extensions to get the borrowable we need to repay, and the token we need to swap
     function _getSwapTokens(LiquidateData memory data)
         internal

@@ -60,13 +60,7 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
 
         _swapTokensAero(tokenIn, tokenOut, tickSpacing, tokenIn.balanceOf(address(this)));
 
-        // Repay
         tokenOut.safeTransfer(borrowable, data.repayAmount);
-    }
-
-    function _approveToken(address token, address to, uint256 amount) private {
-        if (IERC20(token).allowance(address(this), to) >= amount) return;
-        SafeTransferLib.safeApprove(token, to, type(uint256).max);
     }
 
     function _swapTokensAero(address tokenIn, address tokenOut, int24 tickSpacing, uint256 amountIn) private {

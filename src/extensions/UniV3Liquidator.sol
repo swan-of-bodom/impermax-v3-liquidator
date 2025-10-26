@@ -38,11 +38,6 @@ contract UniV3Liquidator is ImpermaxV3Liquidator {
         tokenOut.safeTransfer(borrowable, data.repayAmount);
     }
 
-    function _approveToken(address token, address to, uint256 amount) private {
-        if (IERC20(token).allowance(address(this), to) >= amount) return;
-        SafeTransferLib.safeApprove(token, to, type(uint256).max);
-    }
-
     function _swapTokensUniV3(address tokenIn, address tokenOut, uint256 amountIn, uint24 fee) private {
         _approveToken(tokenIn, address(swapRouter), amountIn);
 
