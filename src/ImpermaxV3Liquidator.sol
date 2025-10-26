@@ -20,7 +20,8 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
     address public immutable override admin;
 
     /// @inheritdoc IImpermaxV3Liquidator
-    bytes4 public constant override ERC721_RECEIVER = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
+    bytes4 public constant override ERC721_RECEIVER =
+        bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
 
     /// @notice Overridden by extension liquidators
     function _redeemPositionAndRepay(LiquidateData memory data, uint256 tokenId) internal virtual;
@@ -31,7 +32,12 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
     }
 
     /// @inheritdoc IImpermaxV3Liquidator
-    function getLendingPool(address nftlp) public view override returns (IV3BaseRouter01.LendingPool memory lendingPool) {
+    function getLendingPool(address nftlp)
+        public
+        view
+        override
+        returns (IV3BaseRouter01.LendingPool memory lendingPool)
+    {
         return router.getLendingPool(nftlp);
     }
 
@@ -118,5 +124,20 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
 
     function _isPositionUnderwater(address collateral, uint256 tokenId) private returns (bool) {
         return ICollateral(collateral).isUnderwater(tokenId);
+    }
+
+    // -----------------------------
+    //   Internal
+    // -----------------------------
+
+    // Used by extensions to get the borrowable we need to repay, and the token we need to swap
+    function _getSwapTokens(LiquidateData memory data)
+        internal
+        pure
+        returns (address borrowable, address tokenIn, address tokenOut)
+    {
+        borrowable = data.isX ? data.lendingPool.borrowables[0] : data.lendingPool.borrowables[1];
+        tokenIn = data.isX ? data.lendingPool.tokens[1] : data.lendingPool.tokens[0];
+        tokenOut = data.isX ? data.lendingPool.tokens[0] : data.lendingPool.tokens[1];
     }
 }

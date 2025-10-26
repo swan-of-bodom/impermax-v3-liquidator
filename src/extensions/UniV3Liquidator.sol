@@ -30,10 +30,7 @@ contract UniV3Liquidator is ImpermaxV3Liquidator {
         // Redeem NFTLP and receive token0/token1
         INFTLP(data.lendingPool.nftlp).redeem(address(this), tokenId);
 
-        // Swap to the token we need to repay
-        address borrowable = data.isX ? data.lendingPool.borrowables[0] : data.lendingPool.borrowables[1];
-        address tokenIn = data.isX ? data.lendingPool.tokens[1] : data.lendingPool.tokens[0];
-        address tokenOut = data.isX ? data.lendingPool.tokens[0] : data.lendingPool.tokens[1];
+        (address borrowable, address tokenIn, address tokenOut) = _getSwapTokens(data);
 
         _swapTokensUniV3(tokenIn, tokenOut, tokenIn.balanceOf(address(this)), fee);
 
@@ -61,4 +58,5 @@ contract UniV3Liquidator is ImpermaxV3Liquidator {
             })
         );
     }
+
 }

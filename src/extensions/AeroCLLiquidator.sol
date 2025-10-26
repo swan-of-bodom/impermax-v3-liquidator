@@ -22,8 +22,8 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
 
     /// @param _router The Impermax Router, can also use factory, just used for getLendingPool
     constructor(address _router, address _swapRouter, address _positionManager) ImpermaxV3Liquidator(_router) {
-      swapRouter = ISwapRouter(_swapRouter);
-      positionManager = INonfungiblePositionManager(_positionManager);
+        swapRouter = ISwapRouter(_swapRouter);
+        positionManager = INonfungiblePositionManager(_positionManager);
     }
 
     /// @param data The data passed to the borrowable's `liquidate` function
@@ -56,10 +56,7 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
 
         positionManager.burn(tokenId);
 
-        // Swap to the token we need to repay
-        address borrowable = data.isX ? data.lendingPool.borrowables[0] : data.lendingPool.borrowables[1];
-        address tokenIn = data.isX ? data.lendingPool.tokens[1] : data.lendingPool.tokens[0];
-        address tokenOut = data.isX ? data.lendingPool.tokens[0] : data.lendingPool.tokens[1];
+        (address borrowable, address tokenIn, address tokenOut) = _getSwapTokens(data);
 
         _swapTokensAero(tokenIn, tokenOut, tickSpacing, tokenIn.balanceOf(address(this)));
 
