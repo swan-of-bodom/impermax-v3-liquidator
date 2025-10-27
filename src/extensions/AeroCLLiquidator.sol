@@ -20,7 +20,9 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
     /// @notice The address of Aerodrome's NonFungiblePositionManager
     INonfungiblePositionManager public immutable positionManager;
 
-    /// @param _router The Impermax Router, can also use factory, just used for getLendingPool
+    /// @param _router The Impermax router on this chain to get lending pool (could also use factory)
+    /// @param _swapRouter The address of Aerodromes's Swap Router
+    /// @param _positionManager The address of Aerodrome's NonFungiblePositionManager
     constructor(address _router, address _swapRouter, address _positionManager) ImpermaxV3Liquidator(_router) {
         swapRouter = ISwapRouter(_swapRouter);
         positionManager = INonfungiblePositionManager(_positionManager);
@@ -57,10 +59,9 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
         positionManager.burn(tokenId);
 
         (address borrowable, address tokenIn, address tokenOut) = _getSwapTokens(data);
+        _swapTokensAero(tokenIn, tokenOut, tickSpacing, data.repayAmount);
 
-        _swapTokensAero(tokenIn, tokenOut, tickSpacing, tokenIn.balanceOf(address(this)));
-
-        tokenOut.safeTransfer(borrowable, data.repayAmount);
+        _repay(borrowable, tokenOut, data.repayAmount);
     }
 
     function _swapTokensAero(address tokenIn, address tokenOut, int24 tickSpacing, uint256 amountIn) private {

@@ -13,19 +13,19 @@ import {IERC20} from "./interfaces/IERC20.sol";
 abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver {
     using SafeTransferLib for address;
 
+    /// @notice Value of smart contract that can receive NFT
+    bytes4 private constant ERC721_RECEIVER = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
+
     /// @inheritdoc IImpermaxV3Liquidator
     IV3BaseRouter01 public immutable override router;
 
     /// @inheritdoc IImpermaxV3Liquidator
     address public immutable override admin;
 
-    /// @inheritdoc IImpermaxV3Liquidator
-    bytes4 public constant override ERC721_RECEIVER =
-        bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
-
     /// @notice Overridden by extension liquidators
     function _redeemPositionAndRepay(LiquidateData memory data, uint256 tokenId) internal virtual;
 
+    /// @param _router The Impermax router on this chain to get lending pool (could also use factory)
     constructor(address _router) {
         router = IV3BaseRouter01(_router);
         admin = msg.sender;
@@ -42,7 +42,7 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
     }
 
     /// @inheritdoc IImpermaxV3Liquidator
-    function flashLiquidate(address nftlp, uint256 tokenId) external override {
+    function flashLiquidate_U1R(address nftlp, uint256 tokenId) external override {
         IV3BaseRouter01.LendingPool memory lendingPool = getLendingPool(nftlp);
 
         if (!_isPositionLiquidatable(lendingPool.collateral, tokenId)) revert PositionNotLiquidatable();
@@ -70,7 +70,7 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
     }
 
     /// @inheritdoc IERC721Receiver
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data)
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
         external
         override
         returns (bytes4)
@@ -133,7 +133,7 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
     // Used by extensions to allow swap routers to move our tokens
     function _approveToken(address token, address to, uint256 amount) internal {
         if (IERC20(token).allowance(address(this), to) >= amount) return;
-        SafeTransferLib.safeApprove(token, to, type(uint256).max);
+        token.safeApprove(to, type(uint256).max);
     }
 
     // Used by extensions to get the borrowable we need to repay, and the token we need to swap
@@ -145,5 +145,11 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
         borrowable = data.isX ? data.lendingPool.borrowables[0] : data.lendingPool.borrowables[1];
         tokenIn = data.isX ? data.lendingPool.tokens[1] : data.lendingPool.tokens[0];
         tokenOut = data.isX ? data.lendingPool.tokens[0] : data.lendingPool.tokens[1];
+    }
+
+    // Used by extensions to repay the borrowable
+    function _repay(address borrowable, address underlying, uint256 repayAmount) internal {
+        if (underlying.balanceOf(address(this)) < repayAmount) revert InsufficientRepayAmount();
+        underlying.safeTransfer(borrowable, repayAmount);
     }
 }

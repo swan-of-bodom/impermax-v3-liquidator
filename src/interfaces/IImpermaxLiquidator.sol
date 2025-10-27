@@ -13,6 +13,7 @@ interface IImpermaxV3Liquidator {
     error UnauthorizedCaller();
     error UnauthorizedOperator();
     error UnauthorizedFrom();
+    error InsufficientRepayAmount();
 
     event Liquidate(
         address indexed nftlp,
@@ -31,10 +32,9 @@ interface IImpermaxV3Liquidator {
 
     function router() external view returns (IV3BaseRouter01);
     function admin() external view returns (address);
-    function ERC721_RECEIVER() external view returns (bytes4);
     function isPositionLiquidatable(address nftlp, uint256 tokenId) external returns (bool);
     function isPositionUnderwater(address nftlp, uint256 tokenId) external returns (bool);
-    function flashLiquidate(address nftlp, uint256 tokenId) external;
+    function flashLiquidate_U1R(address nftlp, uint256 tokenId) external;
     function getLendingPool(address nftlp) external view returns (IV3BaseRouter01.LendingPool memory lendingPool);
     function collectTokens(address[] calldata tokens, address to) external;
 }
