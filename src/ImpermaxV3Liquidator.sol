@@ -148,8 +148,7 @@ abstract contract ImpermaxV3Liquidator is IImpermaxV3Liquidator, IERC721Receiver
     }
 
     // Used by extensions to repay the borrowable
-    function _repay(address borrowable, address underlying, uint256 repayAmount) internal {
-        if (underlying.balanceOf(address(this)) < repayAmount) revert InsufficientRepayAmount();
+    function _repay(address underlying, address borrowable, uint256 repayAmount) internal {
         underlying.safeTransfer(borrowable, repayAmount);
     }
 }

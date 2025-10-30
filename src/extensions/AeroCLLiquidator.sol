@@ -61,7 +61,7 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
         (address borrowable, address tokenIn, address tokenOut) = _getSwapTokens(data);
         _swapTokensAero(tokenIn, tokenOut, tickSpacing, data.repayAmount);
 
-        _repay(borrowable, tokenOut, data.repayAmount);
+        _repay(tokenOut, borrowable, data.repayAmount);
     }
 
     function _swapTokensAero(address tokenIn, address tokenOut, int24 tickSpacing, uint256 amountIn) private {

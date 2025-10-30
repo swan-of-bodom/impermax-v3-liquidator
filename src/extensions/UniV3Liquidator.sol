@@ -34,7 +34,7 @@ contract UniV3Liquidator is ImpermaxV3Liquidator {
         (address borrowable, address tokenIn, address tokenOut) = _getSwapTokens(data);
         _swapTokensUniV3(tokenIn, tokenOut, tokenIn.balanceOf(address(this)), fee);
 
-        _repay(borrowable, tokenOut, data.repayAmount);
+        _repay(tokenOut, borrowable, data.repayAmount);
     }
 
     function _swapTokensUniV3(address tokenIn, address tokenOut, uint256 amountIn, uint24 fee) private {
