@@ -65,6 +65,8 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
     }
 
     function _swapTokensAero(address tokenIn, address tokenOut, int24 tickSpacing, uint256 amountIn) private {
+        if (amountIn == 0) return;
+
         _approveToken(tokenIn, address(swapRouter), amountIn);
 
         swapRouter.exactInputSingle(

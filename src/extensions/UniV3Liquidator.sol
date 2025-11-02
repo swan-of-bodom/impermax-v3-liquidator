@@ -38,6 +38,8 @@ contract UniV3Liquidator is ImpermaxV3Liquidator {
     }
 
     function _swapTokensUniV3(address tokenIn, address tokenOut, uint256 amountIn, uint24 fee) private {
+        if (amountIn == 0) return;
+
         _approveToken(tokenIn, address(swapRouter), amountIn);
 
         swapRouter.exactInputSingle(
