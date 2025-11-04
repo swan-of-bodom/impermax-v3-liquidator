@@ -59,7 +59,7 @@ contract AeroCLLiquidator is ImpermaxV3Liquidator {
         positionManager.burn(tokenId);
 
         (address borrowable, address tokenIn, address tokenOut) = _getSwapTokens(data);
-        _swapTokensAero(tokenIn, tokenOut, tickSpacing, data.repayAmount);
+        _swapTokensAero(tokenIn, tokenOut, tickSpacing, tokenIn.balanceOf(address(this)));
 
         _repay(tokenOut, borrowable, data.repayAmount);
     }
