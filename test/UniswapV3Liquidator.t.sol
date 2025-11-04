@@ -3,26 +3,28 @@ pragma solidity ^0.8.9;
 
 import {Test, console} from "forge-std/Test.sol";
 import {UniV3Liquidator} from "../src/extensions/UniV3Liquidator.sol";
+import {UniV3Liquidator} from "../src/extensions/UniV3Liquidator.sol";
 
 contract ImpermaxV3LiquidatorTest is Test {
     UniV3Liquidator public liquidator;
 
-    // Impermax Router on this chain
-    address constant ROUTER = 0x0fD27DC61e2Dc85EF63298E39cB2879432F2DaF6;
-    // Extension router on this chain (Uniswap's SwapRouter for UniV3Liquidator, etc.)
-    address uniswapRouter = 0x6D99e7f6747AF2cDbB5164b6DD50e40D4fDe1e77;
+    // Impermax Router and Uni's Swap router on this chain
+    address constant ROUTER = 0x747B53B2aF6cd09A19c81085E85117fF11F7119D;
+    address constant UNISWAP_ROUTER = 0xBE6D8f0d05cC4be24d5167a3eF062215bE6D18a5;
 
-    // Position to liquidate
-    address constant NFTLP = 0x62Eb5c0f829e7fAE4da4B1bDE3b1540F581Fc187;
-    uint256 constant TOKEN_ID = 8;
+    // Position
+    address constant NFTLP = 0x059C888D457A10de6921A0853E1a62EC58B447ad;
+    uint256 constant TOKEN_ID = 23431656;
 
     function setUp() public {
-        vm.createSelectFork("hyperevm");
-        liquidator = new UniV3Liquidator(ROUTER, uniswapRouter);
+        vm.createSelectFork("base");
+        liquidator = new UniV3Liquidator(ROUTER, UNISWAP_ROUTER);
     }
 
     function test_flashLiquidate() public {
         bool isLiquidatable = liquidator.isPositionLiquidatable(NFTLP, TOKEN_ID);
+        bool isUnderwater = liquidator.isPositionUnderwater(NFTLP, TOKEN_ID);
+        console.log("Is underwater: ", isUnderwater);
 
         if (!isLiquidatable) {
             console.log("Position not liquidatable");
