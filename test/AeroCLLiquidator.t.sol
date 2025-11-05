@@ -14,8 +14,8 @@ contract ImpermaxV3LiquidatorTest is Test {
     address constant NFP_MANAGER = 0x827922686190790b37229fd06084350E74485b72;
 
     // Position
-    address constant NFTLP = 0x059C888D457A10de6921A0853E1a62EC58B447ad;
-    uint256 constant TOKEN_ID = 23431656;
+    address constant NFTLP = 0x49B3f8b07e645D7c31F41DE3296E9905aA93BE6C;
+    uint256 constant TOKEN_ID = 26746844;
 
     function setUp() public {
         vm.createSelectFork("base");

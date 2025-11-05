@@ -9,12 +9,12 @@ contract ImpermaxV3LiquidatorTest is Test {
     UniV3Liquidator public liquidator;
 
     // Impermax Router and Uni's Swap router on this chain
-    address constant ROUTER = 0x747B53B2aF6cd09A19c81085E85117fF11F7119D;
-    address constant UNISWAP_ROUTER = 0xBE6D8f0d05cC4be24d5167a3eF062215bE6D18a5;
+    address constant ROUTER = 0x7e22a1385B487936F095eBfFa7bEC3ff6908339a;
+    address constant UNISWAP_ROUTER = 0x2626664c2603336E57B271c5C0b26F421741e481;
 
     // Position
-    address constant NFTLP = 0x059C888D457A10de6921A0853E1a62EC58B447ad;
-    uint256 constant TOKEN_ID = 23431656;
+    address constant NFTLP = 0x9a0A67c75978d58f36290ef767400eed6A53B014;
+    uint256 constant TOKEN_ID = 215;
 
     function setUp() public {
         vm.createSelectFork("base");
